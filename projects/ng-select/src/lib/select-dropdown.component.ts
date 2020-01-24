@@ -9,7 +9,7 @@ import {OptionList} from './option-list';
     encapsulation: ViewEncapsulation.None
 })
 
-export class SelectDropdownComponent
+export class SelectDropdownComponent<TOption extends string | number = string>
         implements AfterViewInit, OnChanges, OnInit {
 
     @Input() filterEnabled: boolean;
@@ -18,14 +18,14 @@ export class SelectDropdownComponent
     @Input() left: number;
     @Input() multiple: boolean;
     @Input() notFoundMsg: string;
-    @Input() optionList: OptionList;
+    @Input() optionList: OptionList<TOption>;
     @Input() isBelow: boolean;
     @Input() top: number;
     @Input() width: number;
     @Input() placeholder: string;
     @Input() optionTemplate: TemplateRef<any>;
 
-    @Output() optionClicked = new EventEmitter<Option>();
+    @Output() optionClicked = new EventEmitter<Option<TOption>>();
     @Output() optionsListClick = new EventEmitter<null>();
     @Output() singleFilterClick = new EventEmitter<null>();
     @Output() singleFilterFocus = new EventEmitter<null>();
@@ -85,11 +85,11 @@ export class SelectDropdownComponent
         this.handleOptionsWheel(event);
     }
 
-    onOptionMouseover(option: Option) {
+    onOptionMouseover(option: Option<TOption>) {
         this.optionList.highlightOption(option);
     }
 
-    onOptionClick(option: Option) {
+    onOptionClick(option: Option<TOption>) {
         this.optionClicked.emit(option);
     }
 
@@ -102,7 +102,7 @@ export class SelectDropdownComponent
 
     /** View. **/
 
-    getOptionStyle(option: Option): any {
+    getOptionStyle(option: Option<TOption>): any {
         if (option.highlighted) {
             let style: any = {};
 

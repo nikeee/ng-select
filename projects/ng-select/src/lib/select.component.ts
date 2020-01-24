@@ -19,10 +19,10 @@ export const SELECT_VALUE_ACCESSOR: ExistingProvider = {
     encapsulation: ViewEncapsulation.None
 })
 
-export class SelectComponent implements ControlValueAccessor, OnChanges, OnInit {
+export class SelectComponent<TOption extends string | number = string> implements ControlValueAccessor, OnChanges, OnInit {
 
     // Data input.
-    @Input() options: Array<IOption> = [];
+    @Input() options: Array<IOption<TOption>> = [];
 
     // Functionality settings.
     @Input() allowClear: boolean = false;
@@ -43,8 +43,8 @@ export class SelectComponent implements ControlValueAccessor, OnChanges, OnInit 
     // Output events.
     @Output() opened = new EventEmitter<null>();
     @Output() closed = new EventEmitter<null>();
-    @Output() selected = new EventEmitter<IOption>();
-    @Output() deselected = new EventEmitter<IOption | IOption[]>();
+    @Output() selected = new EventEmitter<IOption<TOption>>();
+    @Output() deselected = new EventEmitter<IOption<TOption> | IOption<TOption>[]>();
     @Output() focus = new EventEmitter<null>();
     @Output() blur = new EventEmitter<null>();
     @Output() noOptionsFound = new EventEmitter<string>();
@@ -57,7 +57,7 @@ export class SelectComponent implements ControlValueAccessor, OnChanges, OnInit 
     @ContentChild('optionTemplate', { static: false }) optionTemplate: TemplateRef<any>;
 
     private _value: Array<any> = [];
-    optionList: OptionList = new OptionList([]);
+    optionList: OptionList<TOption> = new OptionList([]);
 
     // View state variables.
     hasFocus: boolean = false;
@@ -144,7 +144,7 @@ export class SelectComponent implements ControlValueAccessor, OnChanges, OnInit 
         this.optionListClicked = true;
     }
 
-    onDropdownOptionClicked(option: Option) {
+    onDropdownOptionClicked(option: Option<TOption>) {
         this.optionClicked = true;
         this.multiple ? this.toggleSelectOption(option) : this.selectOption(option);
     }
@@ -180,7 +180,7 @@ export class SelectComponent implements ControlValueAccessor, OnChanges, OnInit 
         this.closeDropdown(true);
     }
 
-    onDeselectOptionClick(option: Option) {
+    onDeselectOptionClick(option: Option<TOption>) {
         this.clearClicked = true;
         this.deselectOption(option);
     }
@@ -200,7 +200,7 @@ export class SelectComponent implements ControlValueAccessor, OnChanges, OnInit 
         this.clearSelection();
     }
 
-    select(value: string | Array<string>) {
+    select(value: TOption | Array<TOption>) {
         this.writeValue(value);
     }
 
@@ -241,7 +241,7 @@ export class SelectComponent implements ControlValueAccessor, OnChanges, OnInit 
         }
     }
 
-    private updateOptionList(options: Array<IOption>) {
+    private updateOptionList(options: Array<IOption<TOption>>) {
         this.optionList = new OptionList(options);
         this.optionList.value = this._value;
     }
@@ -252,11 +252,11 @@ export class SelectComponent implements ControlValueAccessor, OnChanges, OnInit 
 
     /** Value. **/
 
-    get value(): string | string[] {
+    get value(): TOption | TOption[] {
         return this.multiple ? this._value : this._value[0];
     }
 
-    set value(v: string | string[]) {
+    set value(v: TOption | TOption[]) {
         if (typeof v === 'undefined' || v === null || v === '') {
             v = [];
         }
@@ -287,7 +287,7 @@ export class SelectComponent implements ControlValueAccessor, OnChanges, OnInit 
 
     /** Select. **/
 
-    private selectOption(option: Option) {
+    private selectOption(option: Option<TOption>) {
         if (!option.selected && !option.disabled) {
             this.optionList.select(option, this.multiple);
             this.valueChanged();
@@ -295,7 +295,7 @@ export class SelectComponent implements ControlValueAccessor, OnChanges, OnInit 
         }
     }
 
-    private deselectOption(option: Option) {
+    private deselectOption(option: Option<TOption>) {
         if (option.selected) {
             this.optionList.deselect(option);
             this.valueChanged();
@@ -314,7 +314,7 @@ export class SelectComponent implements ControlValueAccessor, OnChanges, OnInit 
     }
 
     private clearSelection() {
-        let selection: Array<Option> = this.optionList.selection;
+        let selection: Array<Option<TOption>> = this.optionList.selection;
         if (selection.length > 0) {
             this.optionList.clearSelection();
             this.valueChanged();
@@ -328,12 +328,12 @@ export class SelectComponent implements ControlValueAccessor, OnChanges, OnInit 
         }
     }
 
-    private toggleSelectOption(option: Option) {
+    private toggleSelectOption(option: Option<TOption>) {
         option.selected ? this.deselectOption(option) : this.selectOption(option);
     }
 
     private selectHighlightedOption() {
-        let option: Option = this.optionList.highlightedOption;
+        let option: Option<TOption> = this.optionList.highlightedOption;
         if (option !== null) {
             this.selectOption(option);
             this.closeDropdown(true);
@@ -341,10 +341,10 @@ export class SelectComponent implements ControlValueAccessor, OnChanges, OnInit 
     }
 
     private deselectLast() {
-        let sel: Array<Option> = this.optionList.selection;
+        let sel: Array<Option<TOption>> = this.optionList.selection;
 
         if (sel.length > 0) {
-            let option: Option = sel[sel.length - 1];
+            let option: Option<TOption> = sel[sel.length - 1];
             this.deselectOption(option);
             this.setMultipleFilterInput(option.label + ' ');
         }

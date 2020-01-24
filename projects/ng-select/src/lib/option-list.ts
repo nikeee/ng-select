@@ -2,16 +2,16 @@ import {Option} from './option';
 import {IOption} from './option.interface';
 import {Diacritics} from './diacritics';
 
-export class OptionList {
+export class OptionList<TOption extends string | number> {
 
-    private _options: Array<Option>;
+    private _options: Array<Option<TOption>>;
 
     /* Consider using these for performance improvement. */
     // private _selection: Array<Option>;
     // private _filtered: Array<Option>;
     // private _value: Array<string>;
 
-    private _highlightedOption: Option = null;
+    private _highlightedOption: Option<TOption> = null;
     private _hasShown: boolean;
     private _hasSelected: boolean;
 
@@ -22,14 +22,14 @@ export class OptionList {
         return this._hasSelected;
     }
 
-    constructor(options: Array<IOption>) {
+    constructor(options: Array<IOption<TOption>>) {
 
         if (typeof options === 'undefined' || options === null) {
             options = [];
         }
 
         this._options = options.map((option) => {
-            let o: Option = new Option(option);
+            let o: Option<TOption> = new Option<TOption>(option);
             if (option.disabled) {
                 o.disabled = true;
             }
@@ -42,11 +42,11 @@ export class OptionList {
 
     /** Options. **/
 
-    get options(): Array<Option> {
+    get options(): Array<Option<TOption>> {
         return this._options;
     }
 
-    getOptionsByValue(value: string): Array<Option> {
+    getOptionsByValue(value: string): Array<Option<TOption>> {
         return this.options.filter((option) => {
             return option.value === value;
         });
@@ -54,11 +54,11 @@ export class OptionList {
 
     /** Value. **/
 
-    get value(): Array<string> {
+    get value(): Array<TOption> {
         return this.selection.map(option => option.value);
     }
 
-    set value(v: Array<string>) {
+    set value(v: Array<TOption>) {
         v = typeof v === 'undefined' || v === null ? [] : v;
 
         this.options.forEach((option) => {
@@ -69,11 +69,11 @@ export class OptionList {
 
     /** Selection. **/
 
-    get selection(): Array<Option> {
+    get selection(): Array<Option<TOption>> {
         return this.options.filter(option => option.selected);
     }
 
-    select(option: Option, multiple: boolean) {
+    select(option: Option<TOption>, multiple: boolean) {
         if (!multiple) {
             this.clearSelection();
         }
@@ -81,7 +81,7 @@ export class OptionList {
         this.updateHasSelected();
     }
 
-    deselect(option: Option) {
+    deselect(option: Option<TOption>) {
         option.selected = false;
         this.updateHasSelected();
     }
@@ -99,11 +99,11 @@ export class OptionList {
 
     /** Filter. **/
 
-    get filtered(): Array<Option> {
+    get filtered(): Array<Option<TOption>> {
         return this.options.filter(option => option.shown);
     }
 
-    get filteredEnabled(): Array<Option> {
+    get filteredEnabled(): Array<Option<TOption>> {
         return this.options.filter(option => option.shown && !option.disabled);
     }
 
@@ -141,17 +141,17 @@ export class OptionList {
 
     /** Highlight. **/
 
-    get highlightedOption(): Option {
+    get highlightedOption(): Option<TOption> {
         return this._highlightedOption;
     }
 
     highlight() {
-        let option: Option = this.hasShownSelected() ?
+        let option: Option<TOption> = this.hasShownSelected() ?
             this.getFirstShownSelected() : this.getFirstShown();
         this.highlightOption(option);
     }
 
-    highlightOption(option: Option) {
+    highlightOption(option: Option<TOption>) {
         this.clearHighlightedOption();
 
         if (option !== null) {
@@ -185,7 +185,7 @@ export class OptionList {
         }
     }
 
-    private getHighlightedIndexFromList(options: Array<Option>) {
+    private getHighlightedIndexFromList(options: Array<Option<TOption>>) {
         for (let i = 0; i < options.length; i++) {
             if (options[i].highlighted) {
                 return i;
@@ -206,7 +206,7 @@ export class OptionList {
         });
     }
 
-    private getFirstShown(): Option {
+    private getFirstShown(): Option<TOption> {
         for (let option of this.options) {
             if (option.shown) {
                 return option;
@@ -215,7 +215,7 @@ export class OptionList {
         return null;
     }
 
-    private getFirstShownSelected(): Option {
+    private getFirstShownSelected(): Option<TOption> {
         for (let option of this.options) {
             if (option.shown && option.selected) {
                 return option;

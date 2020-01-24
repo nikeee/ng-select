@@ -1,15 +1,15 @@
 import {IOption} from './option.interface';
 
-export class Option {
+export class Option<TOption extends string | number> {
 
-    wrappedOption: IOption;
+    wrappedOption: IOption<TOption>;
 
     disabled: boolean;
     highlighted: boolean;
     selected: boolean;
     shown: boolean;
 
-    constructor(option: IOption) {
+    constructor(option: IOption<TOption>) {
         this.wrappedOption = option;
 
         this.disabled = false;
@@ -18,7 +18,7 @@ export class Option {
         this.shown = true;
     }
 
-    get value(): string {
+    get value(): TOption {
         return this.wrappedOption.value;
     }
 
